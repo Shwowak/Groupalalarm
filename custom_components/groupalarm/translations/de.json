@@ -1,0 +1,50 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "GroupAlarm einrichten",
+        "description": "API-Key und Organisations-ID findest du unter app.groupalarm.com → Einstellungen → API. Nach dem Einrichten erhältst du eine Webhook-URL für Push-Alarme.",
+        "data": {
+          "api_key": "API-Key",
+          "organization_id": "Organisations-ID",
+          "scan_interval": "Abfrageintervall (Sekunden)"
+        }
+      }
+    },
+    "error": {
+      "invalid_auth": "Ungültiger API-Key oder keine Berechtigung.",
+      "cannot_connect": "Verbindung zu GroupAlarm fehlgeschlagen.",
+      "unknown": "Unbekannter Fehler."
+    },
+    "abort": {
+      "already_configured": "GroupAlarm ist bereits konfiguriert.",
+      "webhook_configured": "Webhook wurde erfolgreich konfiguriert."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "GroupAlarm Optionen",
+        "data": {
+          "scan_interval": "Abfrageintervall (Sekunden)"
+        }
+      }
+    }
+  },
+  "services": {
+    "send_feedback": {
+      "name": "Rückmeldung senden",
+      "description": "Sendet eine Rückmeldung (ja/nein/später) für einen Alarm.",
+      "fields": {
+        "alarm_id": {
+          "name": "Alarm-ID",
+          "description": "Die ID des Alarms."
+        },
+        "feedback": {
+          "name": "Rückmeldung",
+          "description": "yes, no oder later."
+        }
+      }
+    }
+  }
+}

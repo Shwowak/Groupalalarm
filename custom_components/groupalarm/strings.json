@@ -1,0 +1,22 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "GroupAlarm Setup",
+        "data": {
+          "api_key": "API Key",
+          "organization_id": "Organization ID",
+          "scan_interval": "Scan interval (seconds)"
+        }
+      }
+    },
+    "error": {
+      "invalid_auth": "Invalid API key or insufficient permissions.",
+      "cannot_connect": "Failed to connect to GroupAlarm.",
+      "unknown": "Unexpected error."
+    },
+    "abort": {
+      "already_configured": "GroupAlarm is already configured."
+    }
+  }
+}

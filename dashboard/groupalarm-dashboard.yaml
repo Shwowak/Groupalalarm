@@ -1,0 +1,215 @@
+title: GroupAlarm
+views:
+  - title: Alarm
+    icon: mdi:alarm-light
+    path: group-alarm
+    badges: []
+    cards:
+
+      # ══════════════════════════════════════════════
+      # ALARM BANNER – ROT wenn aktiv, GRÜN wenn ruhig
+      # ══════════════════════════════════════════════
+      - type: conditional
+        conditions:
+          - entity: binary_sensor.groupalarm_alarm_aktiv
+            state: "on"
+        card:
+          type: markdown
+          content: >
+            <center>
+
+            # 🚨 ALARM AKTIV
+
+            **{{ states('sensor.groupalarm_letzter_alarm') }}**
+
+            📍 {{ state_attr('sensor.groupalarm_letzter_alarm', 'address') | default('–') }}
+
+            💬 {{ state_attr('sensor.groupalarm_letzter_alarm', 'message') | default('–') }}
+
+            🕐 {{ state_attr('sensor.groupalarm_letzter_alarm', 'created_at') | default('') | replace('T',' ') | truncate(16, True, '') }}
+
+            </center>
+          card_mod:
+            style: |
+              ha-card {
+                background: linear-gradient(135deg, #c62828, #e53935);
+                color: white !important;
+                border-radius: 16px;
+                padding: 8px;
+                box-shadow: 0 4px 20px rgba(198,40,40,0.5);
+                animation: pulse 2s infinite;
+              }
+              @keyframes pulse {
+                0%   { box-shadow: 0 4px 20px rgba(198,40,40,0.5); }
+                50%  { box-shadow: 0 4px 30px rgba(198,40,40,0.9); }
+                100% { box-shadow: 0 4px 20px rgba(198,40,40,0.5); }
+              }
+
+      - type: conditional
+        conditions:
+          - entity: binary_sensor.groupalarm_alarm_aktiv
+            state: "off"
+        card:
+          type: markdown
+          content: >
+            <center>
+
+            # ✅ Kein aktiver Alarm
+
+            *System bereit*
+
+            </center>
+          card_mod:
+            style: |
+              ha-card {
+                background: linear-gradient(135deg, #2e7d32, #43a047);
+                color: white !important;
+                border-radius: 16px;
+                padding: 8px;
+              }
+
+      # ══════════════════════════════════════════════
+      # STATUS ÜBERSICHT
+      # ══════════════════════════════════════════════
+      - type: glance
+        title: Status
+        show_name: true
+        show_icon: true
+        show_state: true
+        entities:
+          - entity: binary_sensor.groupalarm_alarm_aktiv
+            name: Alarm
+          - entity: sensor.groupalarm_aktive_alarme
+            name: Aktiv
+            icon: mdi:alarm-light
+          - entity: sensor.groupalarm_letzte_alarme
+            name: Letzte Alarme
+            icon: mdi:history
+
+      # ══════════════════════════════════════════════
+      # RÜCKMELDUNG – nur wenn Alarm aktiv
+      # ══════════════════════════════════════════════
+      - type: conditional
+        conditions:
+          - entity: binary_sensor.groupalarm_alarm_aktiv
+            state: "on"
+        card:
+          type: vertical-stack
+          cards:
+            - type: markdown
+              content: "## 📣 Rückmeldung senden"
+
+            - type: horizontal-stack
+              cards:
+                - type: button
+                  name: Ich komme
+                  icon: mdi:check-circle
+                  icon_height: 40px
+                  tap_action:
+                    action: call-service
+                    service: groupalarm.send_feedback
+                    service_data:
+                      alarm_id: >
+                        {{ state_attr('sensor.groupalarm_letzter_alarm', 'alarm_id') | int }}
+                      feedback: "yes"
+                  card_mod:
+                    style: |
+                      ha-card {
+                        background: #2e7d32;
+                        color: white;
+                        border-radius: 12px;
+                        --mdc-icon-button-ripple-color: white;
+                      }
+
+                - type: button
+                  name: Ich komme nicht
+                  icon: mdi:close-circle
+                  icon_height: 40px
+                  tap_action:
+                    action: call-service
+                    service: groupalarm.send_feedback
+                    service_data:
+                      alarm_id: >
+                        {{ state_attr('sensor.groupalarm_letzter_alarm', 'alarm_id') | int }}
+                      feedback: "no"
+                  card_mod:
+                    style: |
+                      ha-card {
+                        background: #c62828;
+                        color: white;
+                        border-radius: 12px;
+                      }
+
+                - type: button
+                  name: Komme später
+                  icon: mdi:clock-outline
+                  icon_height: 40px
+                  tap_action:
+                    action: call-service
+                    service: groupalarm.send_feedback
+                    service_data:
+                      alarm_id: >
+                        {{ state_attr('sensor.groupalarm_letzter_alarm', 'alarm_id') | int }}
+                      feedback: "later"
+                  card_mod:
+                    style: |
+                      ha-card {
+                        background: #e65100;
+                        color: white;
+                        border-radius: 12px;
+                      }
+
+      # ══════════════════════════════════════════════
+      # ALARM-DETAILS – nur wenn aktiv
+      # ══════════════════════════════════════════════
+      - type: conditional
+        conditions:
+          - entity: binary_sensor.groupalarm_alarm_aktiv
+            state: "on"
+        card:
+          type: entities
+          title: Alarm-Details
+          icon: mdi:information-outline
+          entities:
+            - type: attribute
+              entity: sensor.groupalarm_letzter_alarm
+              attribute: alarm_id
+              name: Alarm-ID
+              icon: mdi:identifier
+            - type: attribute
+              entity: sensor.groupalarm_letzter_alarm
+              attribute: keyword
+              name: Stichwort
+              icon: mdi:tag
+            - type: attribute
+              entity: sensor.groupalarm_letzter_alarm
+              attribute: message
+              name: Meldung
+              icon: mdi:message-text
+            - type: attribute
+              entity: sensor.groupalarm_letzter_alarm
+              attribute: address
+              name: Adresse
+              icon: mdi:map-marker
+            - type: attribute
+              entity: sensor.groupalarm_letzter_alarm
+              attribute: created_at
+              name: Alarmzeit
+              icon: mdi:clock-start
+
+      # ══════════════════════════════════════════════
+      # ALARM-HISTORIE (Markdown Tabelle)
+      # ══════════════════════════════════════════════
+      - type: markdown
+        title: "📋 Letzte Alarme"
+        content: >
+          {% set alarms = state_attr('sensor.groupalarm_letzte_alarme', 'alarms') %}
+          {% if alarms and alarms | length > 0 %}
+          | # | Stichwort | Adresse | Zeit | Status |
+          |:-:|-----------|---------|:----:|:------:|
+          {% for a in alarms[:10] %}
+          | {{ loop.index }} | **{{ a.keyword | default('–') }}** | {{ a.address | default('–') }} | {{ a.created_at[:16] | replace('T',' ') }} | {% if a.status == 'closed' %}✅{% else %}🔴{% endif %} |
+          {% endfor %}
+          {% else %}
+          *Keine Alarm-Historie vorhanden.*
+          {% endif %}
