@@ -108,7 +108,7 @@ class GroupAlarmLatestAlarmSensor(GroupAlarmBaseEntity, SensorEntity):
             "alarm_id": latest.get("id"),
             "keyword": event.get("name", ""),
             "message": latest.get("message", ""),
-            "address": latest.get("address", ""),
+            "address": latest.get("optionalContent", {}).get("address", ""),
             "created_at": latest.get("startDate", ""),
             "status": "aktiv" if not latest.get("endDate") else "abgeschlossen",
         }
@@ -142,7 +142,7 @@ class GroupAlarmRecentAlarmsSensor(GroupAlarmBaseEntity, SensorEntity):
                     "alarm_id": a.get("id"),
                     "keyword": a.get("event", {}).get("name", ""),
                     "message": a.get("message", ""),
-                    "address": a.get("address", ""),
+                    "address": a.get("optionalContent", {}).get("address", ""),
                     "created_at": a.get("startDate", ""),
                     "status": "abgeschlossen" if a.get("endDate") else "aktiv",
                 }
