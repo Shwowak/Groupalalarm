@@ -31,7 +31,6 @@ class GroupAlarmApi:
     def _headers(self) -> dict[str, str]:
         return {
             "Personal-Access-Token": self._api_key,
-            "Content-Type": "application/json",
         }
 
     async def _request(
