@@ -6,9 +6,7 @@ views:
     badges: []
     cards:
 
-      # ══════════════════════════════════════════════
-      # ALARM BANNER – ROT wenn aktiv, GRÜN wenn ruhig
-      # ══════════════════════════════════════════════
+      # ── ALARM BANNER ────────────────────────────────────────────────────────
       - type: conditional
         conditions:
           - entity: binary_sensor.groupalarm_alarm_aktiv
@@ -51,11 +49,10 @@ views:
             state: "off"
         card:
           type: markdown
-          content: >
+          content: |
             <center>
 
             # ✅ Kein aktiver Alarm
-
             *System bereit*
 
             </center>
@@ -68,9 +65,7 @@ views:
                 padding: 8px;
               }
 
-      # ══════════════════════════════════════════════
-      # STATUS ÜBERSICHT
-      # ══════════════════════════════════════════════
+      # ── STATUS ──────────────────────────────────────────────────────────────
       - type: glance
         title: Status
         show_name: true
@@ -86,9 +81,7 @@ views:
             name: Letzte Alarme
             icon: mdi:history
 
-      # ══════════════════════════════════════════════
-      # RÜCKMELDUNG – nur wenn Alarm aktiv
-      # ══════════════════════════════════════════════
+      # ── RÜCKMELDUNG ─────────────────────────────────────────────────────────
       - type: conditional
         conditions:
           - entity: binary_sensor.groupalarm_alarm_aktiv
@@ -98,7 +91,6 @@ views:
           cards:
             - type: markdown
               content: "## 📣 Rückmeldung senden"
-
             - type: horizontal-stack
               cards:
                 - type: button
@@ -114,13 +106,7 @@ views:
                       feedback: "yes"
                   card_mod:
                     style: |
-                      ha-card {
-                        background: #2e7d32;
-                        color: white;
-                        border-radius: 12px;
-                        --mdc-icon-button-ripple-color: white;
-                      }
-
+                      ha-card { background: #2e7d32; color: white; border-radius: 12px; }
                 - type: button
                   name: Ich komme nicht
                   icon: mdi:close-circle
@@ -134,12 +120,7 @@ views:
                       feedback: "no"
                   card_mod:
                     style: |
-                      ha-card {
-                        background: #c62828;
-                        color: white;
-                        border-radius: 12px;
-                      }
-
+                      ha-card { background: #c62828; color: white; border-radius: 12px; }
                 - type: button
                   name: Komme später
                   icon: mdi:clock-outline
@@ -153,15 +134,9 @@ views:
                       feedback: "later"
                   card_mod:
                     style: |
-                      ha-card {
-                        background: #e65100;
-                        color: white;
-                        border-radius: 12px;
-                      }
+                      ha-card { background: #e65100; color: white; border-radius: 12px; }
 
-      # ══════════════════════════════════════════════
-      # ALARM-DETAILS – nur wenn aktiv
-      # ══════════════════════════════════════════════
+      # ── ALARM DETAILS ───────────────────────────────────────────────────────
       - type: conditional
         conditions:
           - entity: binary_sensor.groupalarm_alarm_aktiv
@@ -197,18 +172,16 @@ views:
               name: Alarmzeit
               icon: mdi:clock-start
 
-      # ══════════════════════════════════════════════
-      # ALARM-HISTORIE (Markdown Tabelle)
-      # ══════════════════════════════════════════════
+      # ── LETZTE ALARME ───────────────────────────────────────────────────────
       - type: markdown
         title: "📋 Letzte Alarme"
         content: >
           {% set alarms = state_attr('sensor.groupalarm_letzte_alarme', 'alarms') %}
           {% if alarms and alarms | length > 0 %}
-          | # | Stichwort | Adresse | Zeit | Status |
-          |:-:|-----------|---------|:----:|:------:|
+          | # | Stichwort | Zeit | Status |
+          |:-:|-----------|:----:|:------:|
           {% for a in alarms[:10] %}
-          | {{ loop.index }} | **{{ a.keyword | default('–') }}** | {{ a.address | default('–') }} | {{ a.created_at[:16] | replace('T',' ') }} | {% if a.status == 'closed' %}✅{% else %}🔴{% endif %} |
+          | {{ loop.index }} | **{{ a.keyword | default('–') }}** | {{ a.created_at[:16] | replace('T',' ') }} | {% if a.status == 'abgeschlossen' %}✅{% else %}🔴{% endif %} |
           {% endfor %}
           {% else %}
           *Keine Alarm-Historie vorhanden.*
