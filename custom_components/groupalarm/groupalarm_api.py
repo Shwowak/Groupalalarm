@@ -30,7 +30,7 @@ class GroupAlarmApi:
     @property
     def _headers(self) -> dict[str, str]:
         return {
-            "API-Token": self._api_key,
+            "Personal-Access-Token": self._api_key,
             "Content-Type": "application/json",
         }
 
