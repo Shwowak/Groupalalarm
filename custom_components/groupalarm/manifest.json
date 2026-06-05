@@ -3,10 +3,10 @@
   "name": "GroupAlarm",
   "version": "1.0.0",
   "config_flow": true,
-  "documentation": "https://github.com/rittelj/groupalarm-ha",
+  "documentation": "https://github.com/Shwowak/Groupalalarm",
   "requirements": [],
   "dependencies": [],
-  "codeowners": ["@rittelj"],
+  "codeowners": ["@Shwowak"],
   "iot_class": "cloud_polling",
   "integration_type": "service"
 }
