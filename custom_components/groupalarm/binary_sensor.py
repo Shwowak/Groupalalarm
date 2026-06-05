@@ -34,6 +34,8 @@ class GroupAlarmActiveSensor(CoordinatorEntity, BinarySensorEntity):
 
     @property
     def is_on(self) -> bool:
+        if not self.coordinator.data:
+            return False
         return self.coordinator.data.get("active_count", 0) > 0
 
     @property

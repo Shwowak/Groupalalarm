@@ -54,10 +54,14 @@ class GroupAlarmActiveCountSensor(GroupAlarmBaseEntity, SensorEntity):
 
     @property
     def native_value(self):
+        if not self.coordinator.data:
+            return 0
         return self.coordinator.data.get("active_count", 0)
 
     @property
     def extra_state_attributes(self):
+        if not self.coordinator.data:
+            return {}
         alarms = self.coordinator.data.get("alarms", [])
         return {
             "alarm_ids": [a["id"] for a in alarms],
@@ -77,24 +81,36 @@ class GroupAlarmLatestAlarmSensor(GroupAlarmBaseEntity, SensorEntity):
 
     @property
     def native_value(self) -> str:
+        if not self.coordinator.data:
+            return "kein Alarm"
+        # Zuerst aktive, dann letzte Alarme prüfen
         alarms = self.coordinator.data.get("alarms", [])
         if not alarms:
-            return "kein aktiver Alarm"
+            alarms = self.coordinator.data.get("recent_alarms", [])
+        if not alarms:
+            return "kein Alarm"
         latest = alarms[0]
-        return latest.get("keyword", str(latest["id"]))
+        event = latest.get("event", {})
+        return event.get("name", latest.get("message", str(latest["id"]))[:50])
 
     @property
     def extra_state_attributes(self):
+        if not self.coordinator.data:
+            return {}
         alarms = self.coordinator.data.get("alarms", [])
+        if not alarms:
+            alarms = self.coordinator.data.get("recent_alarms", [])
         if not alarms:
             return {}
         latest = alarms[0]
+        event = latest.get("event", {})
         return {
             "alarm_id": latest.get("id"),
-            "keyword": latest.get("keyword", ""),
+            "keyword": event.get("name", ""),
             "message": latest.get("message", ""),
             "address": latest.get("address", ""),
-            "created_at": latest.get("created_at", ""),
+            "created_at": latest.get("startDate", ""),
+            "status": "aktiv" if not latest.get("endDate") else "abgeschlossen",
         }
 
 
@@ -111,21 +127,24 @@ class GroupAlarmRecentAlarmsSensor(GroupAlarmBaseEntity, SensorEntity):
 
     @property
     def native_value(self) -> int:
+        if not self.coordinator.data:
+            return 0
         return len(self.coordinator.data.get("recent_alarms", []))
 
     @property
     def extra_state_attributes(self):
+        if not self.coordinator.data:
+            return {"alarms": []}
         recent = self.coordinator.data.get("recent_alarms", [])
         return {
             "alarms": [
                 {
                     "alarm_id": a.get("id"),
-                    "keyword": a.get("keyword", ""),
+                    "keyword": a.get("event", {}).get("name", ""),
                     "message": a.get("message", ""),
                     "address": a.get("address", ""),
-                    "created_at": a.get("created_at", ""),
-                    "closed_at": a.get("closed_at", ""),
-                    "status": a.get("status", ""),
+                    "created_at": a.get("startDate", ""),
+                    "status": "abgeschlossen" if a.get("endDate") else "aktiv",
                 }
                 for a in recent
             ]
