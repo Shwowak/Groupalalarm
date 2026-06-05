@@ -70,12 +70,21 @@ class GroupAlarmApi:
         """Get all currently active alarms for the organization."""
         result = await self._request(
             "GET",
-            "/alarm",
-            params={"organization_id": self._organization_id, "status": "active"},
+            "/alarms",
+            params={"organization": self._organization_id},
         )
         if isinstance(result, list):
             return result
-        return result.get("alarms", [])
+        alarms = result.get("alarms", [])
+        # Filter nur aktive (kein endDate oder endDate in der Zukunft)
+        from datetime import datetime, timezone
+        now = datetime.now(timezone.utc)
+        active = []
+        for a in alarms:
+            end = a.get("endDate")
+            if not end:
+                active.append(a)
+        return active
 
     async def get_all_alarms(self, limit: int = 10, offset: int = 0) -> list[dict[str, Any]]:
         """Get all alarms (active + closed) for the organization, newest first."""
@@ -84,7 +93,6 @@ class GroupAlarmApi:
             "/alarms",
             params={
                 "organization": self._organization_id,
-                "type": "all",
                 "limit": min(limit, 50),
                 "offset": offset,
             },
